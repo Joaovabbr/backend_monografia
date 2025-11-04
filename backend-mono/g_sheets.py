@@ -138,9 +138,9 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     else:
         qap_sum = int(qap_sum)
 
-    # Wiscosin: 9 respostas (corrigido para 9)
+    # Wiscosin: 5 respostas (corrigido para 5)
     wisc = payload.get("wisconsin")
-    if wisc is None or not isinstance(wisc, (list, tuple)) or len(wisc) != 9:
+    if wisc is None or not isinstance(wisc, (list, tuple)) or len(wisc) != 5:
         logger.error("Validação Wiscosin falhou: tipo=%s len=%s", type(wisc), len(wisc) if wisc is not None else None)
         raise ValueError("Campo 'wisconsin' deve ser lista com 9 elementos.")
     wisc_vals = [int(x) if x is not None and x != "" else "" for x in wisc]
