@@ -9,8 +9,6 @@ def envia_email_simples(destinatario: str) -> bool:
     """
     Envia o TCLE via SendGrid.
     Requer as variáveis de ambiente:
-      - SENDGRID_API_KEY (sua API Key do SendGrid)
-      - EMAIL_FROM (endereço verificado em SendGrid, ex: maria.salicioni@estudante.ufscar.br)
     Retorna True se enviado com sucesso, False caso contrário.
     """
     api_key = os.getenv("SENDGRID_API_KEY")
@@ -57,7 +55,6 @@ def envia_email_simples(destinatario: str) -> bool:
         -------------------------------------------------------------\n\n"""
     )
 
-    # Monta o body conforme API SendGrid v3
     payload = {
         "personalizations": [
             {
@@ -68,7 +65,6 @@ def envia_email_simples(destinatario: str) -> bool:
         "from": {"email": from_email},
         "content": [
             {"type": "text/plain", "value": termo_consentimento},
-            # opcional: também enviar versão HTML
             {"type": "text/html", "value": termo_consentimento.replace("\n", "<br/>")}
         ]
     }
