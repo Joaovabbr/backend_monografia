@@ -1,5 +1,0 @@
-.env
-.venv
-*.json
-__pycache__
-__pycache__/*
