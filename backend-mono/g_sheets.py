@@ -192,7 +192,7 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     row.append(_safe(game))
 
     # game time
-    row.append(_safe(game_time))
+    row.append(game_time)
 
     expected_len = 74
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
