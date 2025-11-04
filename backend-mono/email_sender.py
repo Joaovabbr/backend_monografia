@@ -8,7 +8,7 @@ def envia_email_simples(destinatario: str):
     Envia um email simples com o termo de consentimento da pesquisa.
     Usa o remetente 'exemplo@gmail.com' (configure senha de app).
     """
-    remetente = "exemplo@gmail.com"
+    remetente = "maria.salicioni@estudante.ufscar.br"
     senha = os.getenv("APP_KEY")
 
     assunto = "Termo de Consentimento Livre e Esclarecido (TCLE) na pesquisa 'Do jogo à realidade: a relação da metacognição no reconhecimento de fake news com uso da gamificação'"
