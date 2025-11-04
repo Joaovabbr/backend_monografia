@@ -52,16 +52,27 @@ SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")  # obrigatória
 DEFAULT_TAB = os.getenv("SHEET_TAB", "Respostas")  # aba padrão se quiser configurar
 
 def _get_service():
-    path = os.getenv("GOOGLE_SA_JSON_PATH")
-    if path and os.path.exists(path):
-        creds = Credentials.from_service_account_file(path, scopes=SCOPES)
+    sa_json = os.getenv("GOOGLE_SA_JSON")
+    sa_path = os.getenv("GOOGLE_SA_JSON_PATH")  # se você subir arquivo e apontar o caminho
+    creds_info = None
+
+    if sa_path:
+        if not os.path.exists(sa_path):
+            raise RuntimeError(f"GOOGLE_SA_JSON_PATH apontado mas arquivo não existe: {sa_path}")
+        with open(sa_path, "r", encoding="utf-8") as f:
+            creds_info = json.load(f)
+    elif sa_json:
+        # aceita string JSON (possivelmente com quebras de linha)
+        try:
+            creds_info = json.loads(sa_json)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("GOOGLE_SA_JSON não contém um JSON válido.") from e
     else:
-        sa_json = os.getenv("GOOGLE_SA_JSON")
-        if not sa_json:
-            raise RuntimeError("GOOGLE_SA_JSON não configurado.")
-        creds_info = json.loads(sa_json)
-        creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
-    return build("sheets", "v4", credentials=creds, cache_discovery=False)
+        raise RuntimeError("GOOGLE_SA_JSON ou GOOGLE_SA_JSON_PATH não configurado.")
+
+    creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+    service = build("sheets", "v4", credentials=creds, cache_discovery=False)
+    return service
 
 def _now_iso():
     return datetime.utcnow().isoformat() + "Z"
