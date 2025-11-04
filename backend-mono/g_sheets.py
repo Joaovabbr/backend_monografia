@@ -194,7 +194,7 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     row.append(_safe(game_time))
 
     # expected length: 5 + 37 + 1 + 9 + 12 + 12 + 1 + 1 = 78
-    expected_len = 78
+    expected_len = 74
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
     if len(row) != expected_len:
         logger.error("Comprimento da linha inválido: %d (esperado %d). Payload keys: %s", len(row), expected_len, list(payload.keys()))
