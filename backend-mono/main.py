@@ -155,3 +155,8 @@ async def envia_email(request: EmailRequest):
         raise HTTPException(status_code=500, detail="Falha ao enviar o email.")
 
     return {"ok": True, "message": f"Termo de consentimento enviado para {destinatario}."}
+
+
+@app.get("/health")
+def health():
+    return {"ok": True}
