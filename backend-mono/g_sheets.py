@@ -166,34 +166,34 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
 
     # montar a linha na ordem exata pedida
     row: List[Any] = []
-    row.append(_safe(idade))
+    row.append((idade))
     row.append(_safe(genero))
     row.append(_safe(etnia))
     row.append(_safe(escolaridade))
     row.append(_safe(estado))
 
     # QAP 37
-    row.extend([_safe(v) for v in qap_vals])  # 37 cols
+    row.extend([(v) for v in qap_vals])  
 
     # QAP sum
-    row.append(_safe(qap_sum))
+    row.append(qap_sum)
 
     # Wiscosin 9
-    row.extend([_safe(v) for v in wisc_vals])  # 9 cols
+    row.extend([(v) for v in wisc_vals])  
 
     # News first 12
-    row.extend([_safe(v) for v in news_first_vals])  # 12 cols
+    row.extend([(v) for v in news_first_vals])  
 
     # News second 12
-    row.extend([_safe(v) for v in news_second_vals])  # 12 cols
+    row.extend([(v) for v in news_second_vals])  
 
     # game
+    game = "badnews" if game == "par" else "pacman"
     row.append(_safe(game))
 
     # game time
     row.append(_safe(game_time))
 
-    # expected length: 5 + 37 + 1 + 9 + 12 + 12 + 1 + 1 = 78
     expected_len = 74
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
     if len(row) != expected_len:
