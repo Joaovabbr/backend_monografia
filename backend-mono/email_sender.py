@@ -1,6 +1,7 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import os
 
 def envia_email_simples(destinatario: str):
     """
@@ -8,7 +9,7 @@ def envia_email_simples(destinatario: str):
     Usa o remetente 'exemplo@gmail.com' (configure senha de app).
     """
     remetente = "exemplo@gmail.com"
-    senha = "SUA_SENHA_DE_APP_AQUI"  
+    senha = os.getenv("APP_KEY")
 
     assunto = "Termo de Consentimento Livre e Esclarecido (TCLE) na pesquisa 'Do jogo à realidade: a relação da metacognição no reconhecimento de fake news com uso da gamificação'"
     termo_consentimento = """
