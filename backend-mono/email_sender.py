@@ -65,7 +65,24 @@ def envia_email_simples(destinatario: str) -> bool:
 
         Ao clicar na opção “Li e estou de acordo com os termos da pesquisa”, você informa que leu todas as informações e declara que concorda em participar da pesquisa nos termos deste TCLE. Caso não concorde em participar, apenas clique na opção “Li e não quero participar da pesquisa” que o direciona a uma página de agradecimento e em seguida feche a página do navegador. As pesquisadoras ficarão à disposição para eventuais esclarecimentos durante e após a sua participação.
 
-        -------------------------------------------------------------\n\n"""
+        -------------------------------------------------------------
+        Contato das Pesquisadoras
+            Pesquisadora principal:
+            Maria Fernanda de Lemos Salicioni
+
+            Email: maria.salicioni@estudante.ufscar.br
+
+            Telefone: (21) 99929-8412
+
+            Pesquisadora responsável:
+            Patrícia Waltz Schelini
+
+            Email: pws@ufscar.br
+
+            Telefone: (16) 98190-5220
+        -------------------------------------------------------------
+
+        \n\n"""
     )
 
     # 3. Construir o Payload para a API do Brevo
