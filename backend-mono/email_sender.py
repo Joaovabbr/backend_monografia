@@ -1,29 +1,30 @@
 import os
-import smtplib
-import ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from typing import Optional  # Mantido caso você use em outro lugar
+import requests
+import json
+from dotenv import load_dotenv
+load_dotenv()
 
-# A URL do SendGrid e as importações 'requests' e 'json' não são mais necessárias
+# URL da API V3 do Brevo para envio de e-mail transacional
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
 
 def envia_email_simples(destinatario: str) -> bool:
     """
-    Envia o TCLE via smtplib (Gmail).
+    Envia o TCLE via Brevo (ex-Sendinblue) API.
+    Isto funciona em plataformas como o Render que bloqueiam portas SMTP.
+
     Requer as variáveis de ambiente:
-    - EMAIL_FROM: (o seu email@gmail.com verificado)
-    - APP_KEY: (a Senha de App de 16 dígitos do Google)
+    - EMAIL_FROM: (o seu email@gmail.com, que deve ser verificado no Brevo)
+    - BREVO_API_KEY: (a sua chave de API v3 do Brevo)
+    
     Retorna True se enviado com sucesso, False caso contrário.
     """
     
     # 1. Obter credenciais das variáveis de ambiente
-    # Lendo a senha da APP_KEY, como solicitado
-    password = os.getenv("APP_KEY")
-    # Lendo o email de origem do EMAIL_FROM, como no seu código original
+    api_key = os.getenv("BREVO_API_KEY")
     from_email = os.getenv("EMAIL_FROM")
 
-    if not password:
-        print("Erro: Variável de ambiente APP_KEY não configurada.")
+    if not api_key:
+        print("Erro: Variável de ambiente BREVO_API_KEY não configurada.")
         return False
     if not from_email:
         print("Erro: Variável de ambiente EMAIL_FROM não configurada.")
@@ -67,55 +68,59 @@ def envia_email_simples(destinatario: str) -> bool:
         -------------------------------------------------------------\n\n"""
     )
 
-    # 3. Criar a estrutura MIME
-    # Usar MIMEMultipart permite enviar tanto 'text/plain' quanto 'text/html',
-    # assim como o seu payload original do SendGrid fazia.
-    # Isso é crucial para que os acentos e quebras de linha funcionem bem.
-    message = MIMEMultipart("alternative")
-    message["Subject"] = assunto
-    message["From"] = from_email
-    message["To"] = destinatario
+    # 3. Construir o Payload para a API do Brevo
+    # O formato é diferente do SendGrid
+    payload = {
+        "sender": {"email": from_email},
+        "to": [{"email": destinatario}],
+        "subject": assunto,
+        "textContent": termo_consentimento, # Versão em texto puro
+        "htmlContent": termo_consentimento.replace("\n", "<br/>") # Versão em HTML
+    }
 
-    # Criar a parte de texto puro (plain text)
-    part1 = MIMEText(termo_consentimento, "plain", "utf-8")
-    
-    # Criar a parte de HTML (copiando a lógica original de substituir \n por <br/>)
-    part2 = MIMEText(termo_consentimento.replace("\n", "<br/>"), "html", "utf-8")
-    
-    # Anexar as partes à mensagem
-    # O cliente de e-mail escolherá qual versão exibir
-    message.attach(part1)
-    message.attach(part2)
+    # 4. Construir os Headers para a API do Brevo
+    headers = {
+        "api-key": api_key,  # Chave de autenticação do Brevo
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
 
-    # 4. Configurar a conexão SMTP para o Gmail
-    smtp_server = "smtp.gmail.com"
-    port = 587  
-    
-    # Criar um contexto SSL seguro
-    context = ssl.create_default_context()
-
-    print(f"Tentando enviar e-mail para {destinatario} via Gmail SMTP (STARTTLS Port 587)...")
+    print(f"Tentando enviar e-mail para {destinatario} via Brevo API...")
 
     try:
-        # MUDANÇA: Usar smtplib.SMTP() e .starttls() em vez de smtplib.SMTP_SSL()
-        # A porta 587 tem mais chances de ser permitida pelos firewalls do Render.
-        with smtplib.SMTP(smtp_server, port) as server:
-            server.ehlo()  # Opcional, mas bom para saudar o servidor
-            server.starttls(context=context)  # Atualiza a conexão para segura
-            server.ehlo()  # Chamar de novo após starttls
-            server.login(from_email, password)
-            print("Login SMTP bem-sucedido.")
-            
-            server.sendmail(
-                from_email, destinatario, message.as_string()
-            )
-            
-            print(f"Email enviado com sucesso para {destinatario}!") # Corrigi o typo "destinataro"
+        resp = requests.post(BREVO_API_URL, headers=headers, data=json.dumps(payload), timeout=15)
+        
+        # O Brevo retorna 201 (Created) em caso de sucesso no envio da API
+        if resp.status_code == 201:
+            print(f"Email enviado com sucesso para {destinatario} (status {resp.status_code})")
             return True
+        else:
+            # Log útil para depuração
+            body_text = resp.text
+            print(f"Falha ao enviar email para {destinatario}: status {resp.status_code} - {body_text}")
+            return False
             
-    except smtplib.SMTPException as e:
-        print(f"Erro de SMTP ao tentar enviar email para {destinatario}: {e}") # Corrigi o typo "destinataro"
+    except requests.RequestException as e:
+        print(f"Erro de rede ao tentar enviar email para {destinatario}: {e}")
         return False
     except Exception as e:
-        print(f"Erro inesperado ao enviar email para {destinatario}: {e}") # Corrigi o typo "destinataro"
+        print(f"Erro inesperado ao enviar email para {destinatario}: {e}")
         return False
+
+# --- Exemplo de como usar (apenas para teste) ---
+if __name__ == "__main__":
+    # Para testar localmente, defina as variáveis no seu terminal:
+    # export EMAIL_FROM="seuemail@gmail.com"
+    # export BREVO_API_KEY="xkeysib-sua-chave-aqui"
+    # export EMAIL_TESTE="email.para.testar@exemplo.com"
+    
+    email_teste = os.getenv("EMAIL_TESTE")
+    if email_teste:
+        print(f"Enviando e-mail de teste para {email_teste}...")
+        sucesso = envia_email_simples(email_teste)
+        if sucesso:
+            print("Teste concluído com sucesso.")
+        else:
+            print("Teste falhou.")
+    else:
+        print("Variável de ambiente EMAIL_TESTE não definida. Pulando o teste de envio.")
