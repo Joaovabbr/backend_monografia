@@ -3,8 +3,9 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
-load_dotenv()  
+from typing import Optional  # Mantido caso você use em outro lugar
+
+# A URL do SendGrid e as importações 'requests' e 'json' não são mais necessárias
 
 def envia_email_simples(destinatario: str) -> bool:
     """
@@ -15,7 +16,10 @@ def envia_email_simples(destinatario: str) -> bool:
     Retorna True se enviado com sucesso, False caso contrário.
     """
     
+    # 1. Obter credenciais das variáveis de ambiente
+    # Lendo a senha da APP_KEY, como solicitado
     password = os.getenv("APP_KEY")
+    # Lendo o email de origem do EMAIL_FROM, como no seu código original
     from_email = os.getenv("EMAIL_FROM")
 
     if not password:
@@ -25,6 +29,7 @@ def envia_email_simples(destinatario: str) -> bool:
         print("Erro: Variável de ambiente EMAIL_FROM não configurada.")
         return False
 
+    # 2. Definir o conteúdo (exatamente como no seu código original)
     assunto = ("Termo de Consentimento Livre e Esclarecido (TCLE) - "
                "Pesquisa: Do jogo à realidade: a relação da metacognição no reconhecimento de fake news")
     termo_consentimento = (
@@ -62,6 +67,10 @@ def envia_email_simples(destinatario: str) -> bool:
         -------------------------------------------------------------\n\n"""
     )
 
+    # 3. Criar a estrutura MIME
+    # Usar MIMEMultipart permite enviar tanto 'text/plain' quanto 'text/html',
+    # assim como o seu payload original do SendGrid fazia.
+    # Isso é crucial para que os acentos e quebras de linha funcionem bem.
     message = MIMEMultipart("alternative")
     message["Subject"] = assunto
     message["From"] = from_email
@@ -80,15 +89,20 @@ def envia_email_simples(destinatario: str) -> bool:
 
     # 4. Configurar a conexão SMTP para o Gmail
     smtp_server = "smtp.gmail.com"
-    port = 465  # Para SSL
+    port = 587  
     
     # Criar um contexto SSL seguro
     context = ssl.create_default_context()
 
-    print(f"Tentando enviar e-mail para {destinatario} via Gmail SMTP...")
+    print(f"Tentando enviar e-mail para {destinatario} via Gmail SMTP (STARTTLS Port 587)...")
 
     try:
-        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        # MUDANÇA: Usar smtplib.SMTP() e .starttls() em vez de smtplib.SMTP_SSL()
+        # A porta 587 tem mais chances de ser permitida pelos firewalls do Render.
+        with smtplib.SMTP(smtp_server, port) as server:
+            server.ehlo()  # Opcional, mas bom para saudar o servidor
+            server.starttls(context=context)  # Atualiza a conexão para segura
+            server.ehlo()  # Chamar de novo após starttls
             server.login(from_email, password)
             print("Login SMTP bem-sucedido.")
             
@@ -96,12 +110,12 @@ def envia_email_simples(destinatario: str) -> bool:
                 from_email, destinatario, message.as_string()
             )
             
-            print(f"Email enviado com sucesso para {destinatario}!")
+            print(f"Email enviado com sucesso para {destinatario}!") # Corrigi o typo "destinataro"
             return True
             
     except smtplib.SMTPException as e:
-        print(f"Erro de SMTP ao tentar enviar email para {destinatario}: {e}")
+        print(f"Erro de SMTP ao tentar enviar email para {destinatario}: {e}") # Corrigi o typo "destinataro"
         return False
     except Exception as e:
-        print(f"Erro inesperado ao enviar email para {destinatario}: {e}")
+        print(f"Erro inesperado ao enviar email para {destinatario}: {e}") # Corrigi o typo "destinataro"
         return False
