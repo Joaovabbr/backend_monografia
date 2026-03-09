@@ -31,7 +31,7 @@ def envia_email_simples(destinatario: str) -> bool:
         print("Erro: Variável de ambiente EMAIL_FROM não configurada.")
         return False
     
-    caminho_tcle = r"backend-mono\data\text\TCLE.txt"
+    caminho_tcle = "./data/text/TCLE.txt"
     try:
         with open(caminho_tcle, "rb") as f:
             conteudo_binario = f.read()
