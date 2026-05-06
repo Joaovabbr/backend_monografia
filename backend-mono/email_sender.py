@@ -5,7 +5,7 @@ import base64
 from dotenv import load_dotenv
 load_dotenv()
 
-# URL da API V3 do Brevo para envio de e-mail transacional
+
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
 
 def envia_email_simples(destinatario: str) -> bool:
@@ -20,7 +20,7 @@ def envia_email_simples(destinatario: str) -> bool:
     Retorna True se enviado com sucesso, False caso contrário.
     """
     
-    # 1. Obter credenciais das variáveis de ambiente
+    
     api_key = os.getenv("BREVO_API_KEY")
     from_email = os.getenv("EMAIL_FROM")
 
@@ -31,7 +31,7 @@ def envia_email_simples(destinatario: str) -> bool:
         print("Erro: Variável de ambiente EMAIL_FROM não configurada.")
         return False
     
-    caminho_tcle = "./data/text/TCLE.txt"
+    caminho_tcle = "./data/pdf/TCLE_assinado.pdf"
     try:
         with open(caminho_tcle, "rb") as f:
             conteudo_binario = f.read()
@@ -41,7 +41,7 @@ def envia_email_simples(destinatario: str) -> bool:
         print(f"Erro: Arquivo {caminho_tcle} não encontrado para anexo.")
         return False
 
-    # 2. Definir o conteúdo (exatamente como no seu código original)
+    
     assunto = ("Termo de Consentimento Livre e Esclarecido (TCLE) - "
                "Pesquisa: Do jogo à realidade: a relação da metacognição no reconhecimento de fake news")
     termo_consentimento = (
@@ -51,25 +51,24 @@ def envia_email_simples(destinatario: str) -> bool:
         Em anexo segue sua via do TCLE com todos os detalhes da pesquisa. Em caso de dúvidas ou desistência em participar da pesquisa basta entrar em contato com a pesquisadora pelos meios abaixo."""
     )
 
-    # 3. Construir o Payload para a API do Brevo
-    # O formato é diferente do SendGrid
+    
     payload = {
         "sender": {"email": from_email},
         "to": [{"email": destinatario}],
         "subject": assunto,
-        "textContent": termo_consentimento, # Versão em texto puro
-        "htmlContent": termo_consentimento.replace("\n", "<br/>"), # Versão em HTML
+        "textContent": termo_consentimento, 
+        "htmlContent": termo_consentimento.replace("\n", "<br/>"), 
         "attachment": [
             {
                 "content": tcle_base64,
-                "name": "TCLE Pesquisa.txt" # Nome que aparecerá no email
+                "name": "TCLE Pesquisa.txt" 
             }
         ]
     }
 
-    # 4. Construir os Headers para a API do Brevo
+    
     headers = {
-        "api-key": api_key,  # Chave de autenticação do Brevo
+        "api-key": api_key, 
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
@@ -95,21 +94,3 @@ def envia_email_simples(destinatario: str) -> bool:
     except Exception as e:
         print(f"Erro inesperado ao enviar email para {destinatario}: {e}")
         return False
-
-# --- Exemplo de como usar (apenas para teste) ---
-if __name__ == "__main__":
-    # Para testar localmente, defina as variáveis no seu terminal:
-    # export EMAIL_FROM="seuemail@gmail.com"
-    # export BREVO_API_KEY="xkeysib-sua-chave-aqui"
-    # export EMAIL_TESTE="email.para.testar@exemplo.com"
-    
-    email_teste = os.getenv("EMAIL_TESTE")
-    if email_teste:
-        print(f"Enviando e-mail de teste para {email_teste}...")
-        sucesso = envia_email_simples(email_teste)
-        if sucesso:
-            print("Teste concluído com sucesso.")
-        else:
-            print("Teste falhou.")
-    else:
-        print("Variável de ambiente EMAIL_TESTE não definida. Pulando o teste de envio.")
