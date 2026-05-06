@@ -61,7 +61,7 @@ def envia_email_simples(destinatario: str) -> bool:
         "attachment": [
             {
                 "content": tcle_base64,
-                "name": "TCLE Pesquisa.txt" 
+                "name": "TCLE Pesquisa.pdf" 
             }
         ]
     }
