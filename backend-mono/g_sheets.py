@@ -119,6 +119,7 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     etnia = payload.get("etnia", "")
     escolaridade = payload.get("escolaridade", "")
     estado = payload.get("estado", "")
+    autodeclaracao = payload.get("autodeclaracao", "")
 
     # QAP: 37 respostas
     qap = payload.get("qap_responses")
@@ -177,6 +178,8 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
 
     # QAP sum
     row.append(qap_sum)
+    # QAP autodeclaração
+    row.append(autodeclaracao)
 
     # Wiscosin 9
     row.extend([(v) for v in wisc_vals])  
