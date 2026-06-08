@@ -120,6 +120,8 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     escolaridade = payload.get("escolaridade", "")
     estado = payload.get("estado", "")
     autodeclaracao = payload.get("autodeclaracao", "")
+    atencao1 = payload.get("atencao1", "")
+    atencao2 = payload.get("atencao2", "")
 
     # QAP: 37 respostas
     qap = payload.get("qap_responses")
@@ -196,8 +198,11 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
 
     # game time
     row.append(game_time)
+    # Atenção 1 e 2
+    row.append(_safe("sim" if atencao1 else "não"))
+    row.append(_safe("sim" if atencao2 else "não"))
 
-    expected_len = 75
+    expected_len = 77
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
     if len(row) != expected_len:
         logger.error("Comprimento da linha inválido: %d (esperado %d). Payload keys: %s", len(row), expected_len, list(payload.keys()))
