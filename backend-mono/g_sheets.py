@@ -122,6 +122,8 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     autodeclaracao = payload.get("autodeclaracao", "")
     atencao1 = payload.get("atencao1", "")
     atencao2 = payload.get("atencao2", "")
+    exited_fullscreen = payload.get("exited_fullscreen", False)
+    had_inactivity = payload.get("had_inactivity", False)
 
     # QAP: 37 respostas
     qap = payload.get("qap_responses")
@@ -201,8 +203,12 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     # Atenção 1 e 2
     row.append(_safe("sim" if atencao1 else "não"))
     row.append(_safe("sim" if atencao2 else "não"))
+    # Saída do fullscreen
+    row.append(_safe("sim" if exited_fullscreen else "não"))
+    # Inatividade (> 4 minutos sem interagir)
+    row.append(_safe("sim" if had_inactivity else "não"))
 
-    expected_len = 77
+    expected_len = 79
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
     if len(row) != expected_len:
         logger.error("Comprimento da linha inválido: %d (esperado %d). Payload keys: %s", len(row), expected_len, list(payload.keys()))
