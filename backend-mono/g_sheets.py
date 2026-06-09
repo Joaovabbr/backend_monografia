@@ -204,9 +204,9 @@ def append_full_response(payload: Dict[str, Any], tab_name: str = DEFAULT_TAB) -
     row.append(_safe("sim" if atencao1 else "não"))
     row.append(_safe("sim" if atencao2 else "não"))
     # Saída do fullscreen
-    row.append(_safe("sim" if exited_fullscreen else "não"))
+    row.append(_safe("não" if exited_fullscreen else "sim"))
     # Inatividade (> 4 minutos sem interagir)
-    row.append(_safe("sim" if had_inactivity else "não"))
+    row.append(_safe("não" if had_inactivity else "sim"))
 
     expected_len = 79
     logger.debug("Linha montada length=%d expected=%d", len(row), expected_len)
